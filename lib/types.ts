@@ -1,4 +1,5 @@
 export interface ElementInfo {
+  nodeId: string
   tagName: string
   id: string | null
   classes: string[]

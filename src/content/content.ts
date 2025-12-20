@@ -5,6 +5,7 @@ const CONTENT_ELEMENT_IDS = {
   SELECTION_OVERLAY: `${PROJECT_ID_PREFIX}-selection-overlay`,
   SELECTION_BOX: `${PROJECT_ID_PREFIX}-selection-box`,
   INSTRUCTIONS_MESSAGE: `${PROJECT_ID_PREFIX}-instructions-message`,
+  HIGHLIGHT_OVERLAY: `${PROJECT_ID_PREFIX}-highlight-overlay`,
 } as const
 
 ;(() => {
@@ -56,6 +57,7 @@ const CONTENT_ELEMENT_IDS = {
           }
 
           const info: ElementInfo = {
+            nodeId: generateSelector(element),
             tagName: element.tagName.toLowerCase(),
             id: element.id || null,
             classes: Array.from(element.classList),
@@ -236,3 +238,122 @@ const CONTENT_ELEMENT_IDS = {
 
   initializeSelectionOverlay()
 })()
+
+;(() => {
+  if ((window as any).__react_cursor_bridge_highlight_listener_active) {
+    console.warn(`${PROJECT_NAME_PREFIX} Highlight listener already initialized.`)
+    return
+  }
+
+  ;(window as any).__react_cursor_bridge_highlight_listener_active = true
+
+  function createHighlightOverlay(rect: DOMRect): HTMLElement {
+    const highlightOverlay = document.createElement('div')
+    highlightOverlay.id = CONTENT_ELEMENT_IDS.HIGHLIGHT_OVERLAY
+    highlightOverlay.style.cssText = `
+    position: fixed;
+    left: ${rect.left}px;
+    top: ${rect.top}px;
+    width: ${rect.width}px;
+    height: ${rect.height}px;
+    background: rgba(239, 68, 68, 0.2);
+    border: 2px solid rgba(239, 68, 68, 0.8);
+    border-radius: 4px;
+    pointer-events: none;
+    z-index: 2147483646;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+    transition: all 0.15s ease-out;
+    `
+    return highlightOverlay
+  }
+
+  let currentHighlight: HTMLElement | null = null
+
+  function clearHighlight() {
+    if (currentHighlight) {
+      currentHighlight.remove()
+      currentHighlight = null
+    }
+    document.getElementById(CONTENT_ELEMENT_IDS.HIGHLIGHT_OVERLAY)?.remove()
+  }
+
+  function highlightElement(nodeId: string) {
+    clearHighlight()
+
+    try {
+      const element = document.querySelector(nodeId)
+
+      if (element) {
+        const rect = element.getBoundingClientRect()
+        currentHighlight = createHighlightOverlay(rect)
+        document.body.appendChild(currentHighlight)
+
+        const isInViewport =
+          rect.top >= 0 &&
+          rect.left >= 0 &&
+          rect.bottom <= window.innerHeight &&
+          rect.right <= window.innerWidth
+
+        if (!isInViewport) {
+          element.scrollIntoView({ behavior: 'smooth' })
+          setTimeout(() => {
+            if (currentHighlight) {
+              const newRect = element.getBoundingClientRect()
+              currentHighlight.style.left = `${newRect.left}px`
+              currentHighlight.style.top = `${newRect.top}px`
+              currentHighlight.style.width = `${newRect.width}px`
+              currentHighlight.style.height = `${newRect.height}px`
+            }
+          }, 500)
+        }
+      }
+    } catch (error) {
+      console.error(`${PROJECT_NAME_PREFIX} Failed to highlight element:`, error)
+    }
+  }
+
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === MESSAGE_TYPES.HIGHLIGHT_ELEMENT) {
+      highlightElement(message.nodeId)
+    } else if (message.type === MESSAGE_TYPES.CLEAR_HIGHLIGHT) {
+      clearHighlight()
+    }
+  })
+
+  console.info(`${PROJECT_NAME_PREFIX} Highlight listener initialized.`)
+})()
+
+function generateSelector(element: Element): string {
+  const path: string[] = []
+  let current: Element | null = element
+
+  while (current && current !== document.documentElement) {
+    let selector = current.tagName.toLowerCase()
+
+    if (current.id) {
+      selector += `#${current.id}`
+      path.unshift(selector)
+      break
+    }
+
+    const parent = current.parentElement
+    if (parent) {
+      const siblings = Array.from(parent.children).filter(
+        (child) => child.tagName === current!.tagName
+      )
+      if (siblings.length > 1) {
+        const index = siblings.indexOf(current) + 1
+        selector += `:nth-of-type(${index})`
+      }
+    }
+
+    path.unshift(selector)
+    current = current.parentElement
+  }
+
+  if (path[0] !== 'html' && path[0]?.indexOf('#') === -1) {
+    path.unshift('html')
+  }
+
+  return path.join(' > ')
+}

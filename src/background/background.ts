@@ -11,6 +11,10 @@ chrome.runtime.onMessage.addListener((message, sender) => {
     injectSelectionScript()
   } else if (message.type === MESSAGE_TYPES.SELECTION_COMPLETE) {
     handleSelection(message.coordinates, message.elements, sender.tab?.id, sender.tab?.windowId)
+  } else if (message.type === MESSAGE_TYPES.HIGHLIGHT_ELEMENT) {
+    relayToActiveTab(message)
+  } else if (message.type === MESSAGE_TYPES.CLEAR_HIGHLIGHT) {
+    relayToActiveTab(message)
   }
 })
 
@@ -28,6 +32,20 @@ async function injectSelectionScript() {
     })
   } catch (error) {
     console.error(`${PROJECT_NAME_PREFIX} Failed to inject content script:`, error)
+  }
+}
+
+async function relayToActiveTab(message: any) {
+  try {
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    })
+    if (!tab?.id) return
+
+    await chrome.tabs.sendMessage(tab.id, message)
+  } catch (error) {
+    console.error(`${PROJECT_NAME_PREFIX} Failed to relay message to content script:`, error)
   }
 }
 
