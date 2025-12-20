@@ -7,3 +7,8 @@ export const MESSAGE_TYPES = {
 export const PROJECT_ID_PREFIX = 'react-cursor-bridge'
 
 export const PROJECT_NAME_PREFIX = '[React Cursor Bridge]:'
+
+export const STORAGE_KEYS = {
+  CAPTURED_IMAGE: 'CAPTURED_IMAGE',
+  CAPTURED_ELEMENTS: 'CAPTURED_ELEMENTS',
+} as const

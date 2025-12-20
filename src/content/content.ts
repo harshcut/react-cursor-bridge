@@ -1,21 +1,11 @@
 import { PROJECT_ID_PREFIX, PROJECT_NAME_PREFIX, MESSAGE_TYPES } from '@/lib/constants'
+import type { ElementInfo } from '@/lib/types'
 
 const CONTENT_ELEMENT_IDS = {
   SELECTION_OVERLAY: `${PROJECT_ID_PREFIX}-selection-overlay`,
   SELECTION_BOX: `${PROJECT_ID_PREFIX}-selection-box`,
   INSTRUCTIONS_MESSAGE: `${PROJECT_ID_PREFIX}-instructions-message`,
 } as const
-
-interface ElementInfo {
-  tagName: string
-  id: string | null
-  classes: string[]
-  textContent: string | null
-  href: string | null
-  src: string | null
-  alt: string | null
-  placeholder: string | null
-}
 
 ;(() => {
   if (document.getElementById(CONTENT_ELEMENT_IDS.SELECTION_OVERLAY)) {
