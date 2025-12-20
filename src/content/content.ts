@@ -6,6 +6,17 @@ const CONTENT_ELEMENT_IDS = {
   INSTRUCTIONS_MESSAGE: `${PROJECT_ID_PREFIX}-instructions-message`,
 } as const
 
+interface ElementInfo {
+  tagName: string
+  id: string | null
+  classes: string[]
+  textContent: string | null
+  href: string | null
+  src: string | null
+  alt: string | null
+  placeholder: string | null
+}
+
 ;(() => {
   if (document.getElementById(CONTENT_ELEMENT_IDS.SELECTION_OVERLAY)) {
     console.warn(`${PROJECT_NAME_PREFIX} Overlay already injected, cleaning up previous instance.`)
@@ -13,6 +24,67 @@ const CONTENT_ELEMENT_IDS = {
     document.getElementById(CONTENT_ELEMENT_IDS.SELECTION_OVERLAY)?.remove()
     document.getElementById(CONTENT_ELEMENT_IDS.SELECTION_BOX)?.remove()
     document.getElementById(CONTENT_ELEMENT_IDS.INSTRUCTIONS_MESSAGE)?.remove()
+  }
+
+  function calculateGridLines(dimension: number): number {
+    const MIN_GRID_SPACING = 25
+    const MIN_GRID_LINES = 3
+    const MAX_GRID_LINES = 12
+
+    const optimalLines = Math.ceil(dimension / MIN_GRID_SPACING) + 1
+    return Math.max(MIN_GRID_LINES, Math.min(MAX_GRID_LINES, optimalLines))
+  }
+
+  function getElementsFromSelection(left: number, top: number, width: number, height: number) {
+    const uniqueElements = new Set<Element>()
+    const elementsInfo: ElementInfo[] = []
+
+    const gridLinesX = calculateGridLines(width)
+    const gridLinesY = calculateGridLines(height)
+    const stepX = width / (gridLinesX - 1)
+    const stepY = height / (gridLinesY - 1)
+
+    selectionOverlay.style.display = 'none'
+    selectionBox.style.display = 'none'
+    instructionMessage.style.display = 'none'
+
+    for (let i = 0; i < gridLinesX; i++) {
+      for (let j = 0; j < gridLinesY; j++) {
+        const x = left + i * stepX
+        const y = top + j * stepY
+
+        const element = document.elementFromPoint(x, y)
+
+        if (element && !uniqueElements.has(element)) {
+          if ((Object.values(CONTENT_ELEMENT_IDS) as string[]).includes(element.id)) continue
+
+          uniqueElements.add(element)
+
+          let textContent = element.textContent?.trim() || null
+          if (textContent && textContent.length > 100) {
+            textContent = textContent.substring(0, 100) + '...'
+          }
+
+          const info: ElementInfo = {
+            tagName: element.tagName.toLowerCase(),
+            id: element.id || null,
+            classes: Array.from(element.classList),
+            textContent,
+            href: (element as HTMLAnchorElement).href || null,
+            src: (element as HTMLImageElement).src || null,
+            alt: (element as HTMLImageElement).alt || null,
+            placeholder: (element as HTMLInputElement).placeholder || null,
+          }
+
+          elementsInfo.push(info)
+        }
+      }
+    }
+
+    selectionOverlay.style.display = ''
+    selectionBox.style.display = ''
+
+    return elementsInfo
   }
 
   const state = {
@@ -129,6 +201,8 @@ const CONTENT_ELEMENT_IDS = {
       return
     }
 
+    const elements = getElementsFromSelection(left, top, width, height)
+
     cleanup()
 
     requestAnimationFrame(() => {
@@ -142,6 +216,7 @@ const CONTENT_ELEMENT_IDS = {
             height,
             devicePixelRatio: window.devicePixelRatio,
           },
+          elements,
         })
       })
     })
