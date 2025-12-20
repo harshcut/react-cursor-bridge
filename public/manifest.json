@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/chrome-manifest",
+  "manifest_version": 3,
+  "name": "React Cursor Bridge",
+  "version": "0.0.0",
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "React Cursor Bridge"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "permissions": ["sidePanel", "activeTab"],
+  "host_permissions": ["<all_urls>"]
+}
