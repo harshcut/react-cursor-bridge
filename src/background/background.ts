@@ -1,5 +1,6 @@
 import { MESSAGE_TYPES, PROJECT_NAME_PREFIX, STORAGE_KEYS } from '@/lib/constants'
 import type { ElementInfo, SelectionCoordinates } from '@/lib/types'
+import { resolveSourceForElements } from './source-resolver'
 import { cropImage } from './image-utils'
 
 chrome.sidePanel
@@ -66,6 +67,15 @@ async function afterSelection(
       [STORAGE_KEYS.CAPTURED_IMAGE]: await cropImage(dataUrl, coordinates),
       [STORAGE_KEYS.CAPTURED_ELEMENTS]: elements,
     })
+
+    try {
+      const elementsWithSource = await resolveSourceForElements(tabId, elements)
+      await chrome.storage.local.set({
+        [STORAGE_KEYS.CAPTURED_ELEMENTS]: elementsWithSource,
+      })
+    } catch (error) {
+      console.error(`${PROJECT_NAME_PREFIX} Source resolution failed:`, error)
+    }
   } catch (error) {
     console.error(`${PROJECT_NAME_PREFIX} Failed to handle selection complete:`, error)
   }
