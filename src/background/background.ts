@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener((message, sender) => {
   if (message.type === MESSAGE_TYPES.START_CAPTURE) {
     injectSelectionScript()
   } else if (message.type === MESSAGE_TYPES.SELECTION_COMPLETE) {
-    handleSelection(message.coordinates, message.elements, sender.tab?.id, sender.tab?.windowId)
+    afterSelection(message.coordinates, message.elements, sender.tab?.id, sender.tab?.windowId)
   } else if (message.type === MESSAGE_TYPES.HIGHLIGHT_ELEMENT) {
     relayToActiveTab(message)
   } else if (message.type === MESSAGE_TYPES.CLEAR_HIGHLIGHT) {
@@ -49,7 +49,7 @@ async function relayToActiveTab(message: any) {
   }
 }
 
-async function handleSelection(
+async function afterSelection(
   coordinates: SelectionCoordinates,
   elements: ElementInfo[],
   tabId?: number,

@@ -57,7 +57,7 @@ const CONTENT_ELEMENT_IDS = {
           }
 
           const info: ElementInfo = {
-            nodeId: generateSelector(element),
+            selector: generateSelector(element),
             tagName: element.tagName.toLowerCase(),
             id: element.id || null,
             classes: Array.from(element.classList),
@@ -66,6 +66,7 @@ const CONTENT_ELEMENT_IDS = {
             src: (element as HTMLImageElement).src || null,
             alt: (element as HTMLImageElement).alt || null,
             placeholder: (element as HTMLInputElement).placeholder || null,
+            sourceInfo: null,
           }
 
           elementsInfo.push(info)
@@ -277,11 +278,11 @@ const CONTENT_ELEMENT_IDS = {
     document.getElementById(CONTENT_ELEMENT_IDS.HIGHLIGHT_OVERLAY)?.remove()
   }
 
-  function highlightElement(nodeId: string) {
+  function highlightElement(selector: string) {
     clearHighlight()
 
     try {
-      const element = document.querySelector(nodeId)
+      const element = document.querySelector(selector)
 
       if (element) {
         const rect = element.getBoundingClientRect()
@@ -314,7 +315,7 @@ const CONTENT_ELEMENT_IDS = {
 
   chrome.runtime.onMessage.addListener((message) => {
     if (message.type === MESSAGE_TYPES.HIGHLIGHT_ELEMENT) {
-      highlightElement(message.nodeId)
+      highlightElement(message.selector)
     } else if (message.type === MESSAGE_TYPES.CLEAR_HIGHLIGHT) {
       clearHighlight()
     }
