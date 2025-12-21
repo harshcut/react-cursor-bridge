@@ -9,6 +9,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { MESSAGE_TYPES, STORAGE_KEYS } from '@/lib/constants'
 import type { ElementInfo } from '@/lib/types'
+import { groupElementsByFile } from '@/lib/utils'
+import FileGroup from './file-group'
 
 export default function SidePanel() {
   const [image, setImage] = useState<string | null>(null)
@@ -69,7 +71,7 @@ export default function SidePanel() {
           <SettingsIcon />
         </Button>
       </header>
-      <main className="flex-1 overflow-auto p-2">
+      <main className="flex-1 overflow-auto p-2 pb-0 relative">
         {image ? (
           <div className="flex flex-col gap-4">
             <div className="overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
@@ -79,9 +81,10 @@ export default function SidePanel() {
               <h2 className="text-sm font-medium text-zinc-500">
                 Detected Elements ({elements.length})
               </h2>
-              {elements.map((value, idx) => (
-                <article key={idx}>{JSON.stringify(value, null, 2)}</article>
+              {groupElementsByFile(elements).map((fileGroup, idx) => (
+                <FileGroup key={idx} fileGroup={fileGroup} />
               ))}
+              <div className="sticky bottom-0 left-0 right-0 h-8 bg-linear-to-t from-white to-transparent pointer-events-none" />
             </div>
           </div>
         ) : (
@@ -101,7 +104,7 @@ export default function SidePanel() {
           </div>
         )}
       </main>
-      <footer className="p-2">
+      <footer className="p-2 pt-0">
         <InputGroup>
           <InputGroupTextarea
             placeholder="Ask, Search or Chat..."

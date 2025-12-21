@@ -27,3 +27,10 @@ export interface SelectionCoordinates {
   height: number
   devicePixelRatio: number
 }
+
+export interface FileGroup {
+  filePath: string
+  fileName: string
+  elements: ElementInfo[]
+  components: string[]
+}
