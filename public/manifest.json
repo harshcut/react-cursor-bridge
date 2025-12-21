@@ -13,6 +13,6 @@
   "side_panel": {
     "default_path": "sidepanel.html"
   },
-  "permissions": ["sidePanel", "activeTab", "scripting", "debugger", "storage"],
+  "permissions": ["sidePanel", "activeTab", "scripting", "debugger", "storage", "downloads"],
   "host_permissions": ["<all_urls>"]
 }

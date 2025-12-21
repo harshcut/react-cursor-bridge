@@ -7,10 +7,20 @@ import {
   InputGroupTextarea,
 } from '@/components/ui/input-group'
 import { Button } from '@/components/ui/button'
-import { MESSAGE_TYPES, STORAGE_KEYS } from '@/lib/constants'
-import type { ElementInfo } from '@/lib/types'
-import { groupElementsByFile } from '@/lib/utils'
+import {
+  MESSAGE_TYPES,
+  PROJECT_NAME_PREFIX,
+  STORAGE_KEYS,
+  PROJECT_ID_PREFIX,
+} from '@/lib/constants'
+import {
+  groupElementsByFile,
+  generateCursorDeeplink,
+  generateCursorPrompt,
+  downloadScreenshot,
+} from '@/lib/utils'
 import FileGroup from './file-group'
+import type { ElementInfo } from '@/lib/types'
 
 export default function SidePanel() {
   const [image, setImage] = useState<string | null>(null)
@@ -61,6 +71,34 @@ export default function SidePanel() {
     setPrompt('')
   }
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!prompt.trim() || !image) return
+
+    try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
+      const filename = `${PROJECT_ID_PREFIX}/capture-${timestamp}.png`
+
+      const downloadPath = await downloadScreenshot(image, filename)
+
+      const sourcePaths = elements
+        .filter((el) => el.sourceInfo?.file && el.sourceInfo.type !== 'not_found')
+        .map((el) => {
+          const filePath = el.sourceInfo!.file!.replace(/^webpack:\/\/\//, '')
+          const line = el.sourceInfo?.line
+          return typeof line === 'number' ? `${filePath}:${line}` : filePath
+        })
+        .filter((path, index, self) => self.indexOf(path) === index)
+
+      const cursorPrompt = generateCursorPrompt(prompt, downloadPath, sourcePaths)
+      window.open(generateCursorDeeplink(cursorPrompt), '_blank')
+      setPrompt('')
+    } catch (error) {
+      console.error(`${PROJECT_NAME_PREFIX} Failed to send to Cursor:`, error)
+      alert(`Failed to send to Cursor. Please try again.`)
+    }
+  }
+
   return (
     <div className="h-screen flex flex-col">
       <header className="p-2 flex items-center justify-between border-b border-zinc-200">
@@ -109,6 +147,7 @@ export default function SidePanel() {
           <InputGroupTextarea
             placeholder="Ask, Search or Chat..."
             className="max-h-10 text-sm"
+            value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
           />
           <InputGroupAddon align="block-end">
@@ -117,6 +156,7 @@ export default function SidePanel() {
               className="rounded-full ml-auto"
               size="icon-xs"
               disabled={!image || !prompt.trim()}
+              onClick={handleSubmit}
             >
               <ArrowUpIcon />
               <span className="sr-only">Send</span>

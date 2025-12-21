@@ -296,7 +296,7 @@ const CONTENT_ELEMENT_IDS = {
           rect.right <= window.innerWidth
 
         if (!isInViewport) {
-          element.scrollIntoView({ behavior: 'smooth' })
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
           setTimeout(() => {
             if (currentHighlight) {
               const newRect = element.getBoundingClientRect()
