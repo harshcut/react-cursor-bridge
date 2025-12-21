@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowUpIcon, ScanIcon } from 'lucide-react'
+import { ArrowUpIcon, ScanIcon, SettingsIcon } from 'lucide-react'
 import {
   InputGroup,
   InputGroupAddon,
@@ -13,6 +13,7 @@ import type { ElementInfo } from '@/lib/types'
 export default function SidePanel() {
   const [image, setImage] = useState<string | null>(null)
   const [elements, setElements] = useState<ElementInfo[]>([])
+  const [prompt, setPrompt] = useState<string>('')
 
   useEffect(() => {
     chrome.storage.local.get(
@@ -51,8 +52,23 @@ export default function SidePanel() {
     }
   }, [])
 
+  const handleClearElements = () => {
+    chrome.storage.local.remove([STORAGE_KEYS.CAPTURED_IMAGE, STORAGE_KEYS.CAPTURED_ELEMENTS])
+    setImage(null)
+    setElements([])
+    setPrompt('')
+  }
+
   return (
     <div className="h-screen flex flex-col">
+      <header className="p-2 flex items-center justify-between border-b border-zinc-200">
+        <Button variant="outline" onClick={handleClearElements}>
+          Reset
+        </Button>
+        <Button variant="outline" size="icon" disabled>
+          <SettingsIcon />
+        </Button>
+      </header>
       <main className="flex-1 overflow-auto p-2">
         {image ? (
           <div className="flex flex-col gap-4">
@@ -87,13 +103,17 @@ export default function SidePanel() {
       </main>
       <footer className="p-2">
         <InputGroup>
-          <InputGroupTextarea placeholder="Ask, Search or Chat..." className="max-h-10 text-sm" />
+          <InputGroupTextarea
+            placeholder="Ask, Search or Chat..."
+            className="max-h-10 text-sm"
+            onChange={(e) => setPrompt(e.target.value)}
+          />
           <InputGroupAddon align="block-end">
             <InputGroupButton
               variant="default"
               className="rounded-full ml-auto"
               size="icon-xs"
-              disabled={!image}
+              disabled={!image || !prompt.trim()}
             >
               <ArrowUpIcon />
               <span className="sr-only">Send</span>
