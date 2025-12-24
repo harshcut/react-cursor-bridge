@@ -4,9 +4,8 @@ import {
   MESSAGE_TYPES,
   STORAGE_KEYS,
   GRID_DENSITY_OPTIONS,
-  type GridDensityType,
 } from '@/lib/constants'
-import type { ElementInfo } from '@/lib/types'
+import type { ElementInfo, GridDensityType } from '@/lib/types'
 
 const CONTENT_ELEMENT_IDS = {
   SELECTION_OVERLAY: `${PROJECT_ID_PREFIX}-selection-overlay`,

@@ -34,3 +34,5 @@ export interface FileGroup {
   elements: ElementInfo[]
   components: string[]
 }
+
+export type GridDensityType = 'loose' | 'default' | 'compact'

@@ -11,7 +11,9 @@ import {
 } from '@/components/ui/dialog'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { SettingsIcon } from 'lucide-react'
-import { STORAGE_KEYS, GRID_DENSITY_OPTIONS, type GridDensityType } from '@/lib/constants'
+import { GRID_DENSITY_OPTIONS, STORAGE_KEYS } from '@/lib/constants'
+import GridPreview from './grid-preview'
+import type { GridDensityType } from '@/lib/types'
 
 export default function Settings() {
   const [density, setDensity] = useState<GridDensityType>('default')
@@ -63,6 +65,7 @@ export default function Settings() {
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
+          <GridPreview density={density} />
         </div>
         <DialogFooter>
           <DialogClose asChild>

@@ -1,3 +1,5 @@
+import type { GridDensityType } from './types'
+
 export const MESSAGE_TYPES = {
   START_CAPTURE: 'START_CAPTURE',
   SELECTION_COMPLETE: 'SELECTION_COMPLETE',
@@ -15,8 +17,6 @@ export const STORAGE_KEYS = {
   CAPTURED_ELEMENTS: 'CAPTURED_ELEMENTS',
   GRID_DENSITY: 'GRID_DENSITY',
 } as const
-
-export type GridDensityType = 'loose' | 'default' | 'compact'
 
 export const GRID_DENSITY_OPTIONS: Record<
   GridDensityType,
