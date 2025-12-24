@@ -1,4 +1,11 @@
-import { PROJECT_ID_PREFIX, PROJECT_NAME_PREFIX, MESSAGE_TYPES } from '@/lib/constants'
+import {
+  PROJECT_ID_PREFIX,
+  PROJECT_NAME_PREFIX,
+  MESSAGE_TYPES,
+  STORAGE_KEYS,
+  GRID_DENSITY_OPTIONS,
+  type GridDensityType,
+} from '@/lib/constants'
 import type { ElementInfo } from '@/lib/types'
 
 const CONTENT_ELEMENT_IDS = {
@@ -17,13 +24,19 @@ const CONTENT_ELEMENT_IDS = {
     document.getElementById(CONTENT_ELEMENT_IDS.INSTRUCTIONS_MESSAGE)?.remove()
   }
 
-  function calculateGridLines(dimension: number): number {
-    const MIN_GRID_SPACING = 25
-    const MIN_GRID_LINES = 3
-    const MAX_GRID_LINES = 12
+  let gridDensity: GridDensityType = 'default'
 
-    const optimalLines = Math.ceil(dimension / MIN_GRID_SPACING) + 1
-    return Math.max(MIN_GRID_LINES, Math.min(MAX_GRID_LINES, optimalLines))
+  chrome.storage.local.get([STORAGE_KEYS.GRID_DENSITY], (result) => {
+    const stored = result[STORAGE_KEYS.GRID_DENSITY] as string | undefined
+    if (stored && stored in GRID_DENSITY_OPTIONS) {
+      gridDensity = stored as GridDensityType
+    }
+  })
+
+  function calculateGridLines(dimension: number): number {
+    const config = GRID_DENSITY_OPTIONS[gridDensity]
+    const optimalLines = Math.ceil(dimension / config.minGridSpacing) + 1
+    return Math.max(config.minGridLines, Math.min(config.maxGridLines, optimalLines))
   }
 
   function getElementsFromSelection(left: number, top: number, width: number, height: number) {

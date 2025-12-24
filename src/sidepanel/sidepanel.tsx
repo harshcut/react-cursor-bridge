@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ArrowUpIcon, ScanIcon, SettingsIcon } from 'lucide-react'
+import { ArrowUpIcon, ScanIcon } from 'lucide-react'
 import {
   InputGroup,
   InputGroupAddon,
@@ -20,6 +20,7 @@ import {
   downloadScreenshot,
 } from '@/lib/utils'
 import FileGroup from './file-group'
+import Settings from './settings'
 import type { ElementInfo } from '@/lib/types'
 
 export default function SidePanel() {
@@ -105,9 +106,7 @@ export default function SidePanel() {
         <Button variant="outline" onClick={handleClearElements}>
           Reset
         </Button>
-        <Button variant="outline" size="icon" disabled>
-          <SettingsIcon />
-        </Button>
+        <Settings />
       </header>
       <main className="flex-1 overflow-auto p-2 pb-0 relative">
         {image ? (

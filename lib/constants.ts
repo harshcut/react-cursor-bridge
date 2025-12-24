@@ -13,4 +13,16 @@ export const PROJECT_NAME_PREFIX = '[React Cursor Bridge]:'
 export const STORAGE_KEYS = {
   CAPTURED_IMAGE: 'CAPTURED_IMAGE',
   CAPTURED_ELEMENTS: 'CAPTURED_ELEMENTS',
+  GRID_DENSITY: 'GRID_DENSITY',
+} as const
+
+export type GridDensityType = 'loose' | 'default' | 'compact'
+
+export const GRID_DENSITY_OPTIONS: Record<
+  GridDensityType,
+  { minGridSpacing: number; minGridLines: number; maxGridLines: number }
+> = {
+  loose: { minGridSpacing: 50, minGridLines: 2, maxGridLines: 8 },
+  default: { minGridSpacing: 25, minGridLines: 3, maxGridLines: 12 },
+  compact: { minGridSpacing: 10, minGridLines: 6, maxGridLines: 30 },
 } as const
