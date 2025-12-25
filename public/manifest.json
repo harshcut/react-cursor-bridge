@@ -1,14 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/chrome-manifest",
   "manifest_version": 3,
-  "name": "React Cursor Bridge",
+  "name": "React Cursor Bridge (Beta)",
   "version": "0.0.0",
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
   "action": {
-    "default_title": "React Cursor Bridge"
+    "default_title": "React Cursor Bridge (Beta)"
   },
   "side_panel": {
     "default_path": "sidepanel.html"

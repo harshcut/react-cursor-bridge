@@ -100,14 +100,14 @@ export default function GridPreview({ density }: { density: GridDensityType }) {
               <animate
                 attributeName="r"
                 values="1;3;1"
-                dur="2s"
+                dur="1.5s"
                 repeatCount="indefinite"
                 begin={`${distFromCenter * 0.01}s`}
               />
               <animate
                 attributeName="fill"
                 values="oklch(0.97 0.00 286);oklch(0.71 0.01 286);oklch(0.97 0.00 286)"
-                dur="2s"
+                dur="1.5s"
                 repeatCount="indefinite"
                 begin={`${distFromCenter * 0.01}s`}
               />

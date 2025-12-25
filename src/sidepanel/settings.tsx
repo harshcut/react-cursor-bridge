@@ -7,6 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -46,6 +47,7 @@ export default function Settings() {
       <DialogContent className="sm:max-w-[340px] p-4 pt-6">
         <DialogHeader>
           <DialogTitle className="text-left">Settings</DialogTitle>
+          <DialogDescription className="sr-only">Customize your preferences</DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
           <label className="text-sm font-medium text-zinc-700">Grid Density</label>
