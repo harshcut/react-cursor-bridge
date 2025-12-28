@@ -1,6 +1,6 @@
 export interface SourceInfo {
-  type: 'exact' | 'fuzzy' | 'not_found'
-  resolution: 'react_fiber' | 'fuzzy' | null
+  type: 'exact' | 'not_found'
+  resolution: 'react_fiber' | null
   file: string | null
   line: number | null
   column: number | null

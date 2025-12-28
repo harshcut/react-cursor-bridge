@@ -73,7 +73,7 @@ export default function FileGroup({ fileGroup }: { fileGroup: FileGroup }) {
                     key={idx}
                     className="inline-flex items-center rounded bg-violet-100 px-2 py-0.5 font-mono text-[11px] text-violet-700"
                   >
-                    &lt;{componentName} /&gt;
+                    {componentName}
                   </span>
                 ))}
               </div>
@@ -101,14 +101,18 @@ function ElementPill({ element }: { element: ElementInfo }) {
 
   const filePath = element.sourceInfo?.file?.replace(/^webpack:\/\/\//, '') || null
   const line = element.sourceInfo?.line
+  const column = element.sourceInfo?.column
   const hasSourceLocation = filePath && typeof line === 'number'
 
-  const handleClick = async () => {
-    if (!hasSourceLocation) return
+  const fullPath = hasSourceLocation
+    ? `${filePath}:${line}${typeof column === 'number' ? `:${column}` : ''}`
+    : null
 
-    const pathWithLine = `${filePath}:${line}`
+  const handleClick = async () => {
+    if (!fullPath) return
+
     try {
-      await navigator.clipboard.writeText(pathWithLine)
+      await navigator.clipboard.writeText(fullPath)
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
     } catch (error) {
@@ -133,15 +137,14 @@ function ElementPill({ element }: { element: ElementInfo }) {
           ? 'bg-zinc-200 text-zinc-700 cursor-pointer hover:bg-zinc-300'
           : 'bg-zinc-200 text-zinc-700 cursor-default'
       }`}
-      title={
-        hasSourceLocation
-          ? `Click to copy: ${filePath}:${line}`
-          : element.textContent || element.selector
-      }
+      title={fullPath ? `Click to copy: ${fullPath}` : element.textContent || element.selector}
     >
       {element.tagName}
       {typeof line === 'number' && (
-        <span className={copied ? 'text-green-600' : 'text-zinc-500'}>:{line}</span>
+        <span className={copied ? 'text-green-600' : 'text-zinc-500'}>
+          :{line}
+          {typeof column === 'number' && `:${column}`}
+        </span>
       )}
       {element.textContent && (
         <span

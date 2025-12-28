@@ -2,6 +2,7 @@
   "$schema": "https://json.schemastore.org/chrome-manifest",
   "manifest_version": 3,
   "name": "React Cursor Bridge (Beta)",
+  "description": "Capture screenshots, detect React elements, and send visual context with source code references directly to your editor.",
   "version": "0.0.0",
   "background": {
     "service_worker": "background.js",
@@ -13,7 +14,7 @@
   "side_panel": {
     "default_path": "sidepanel.html"
   },
-  "permissions": ["sidePanel", "activeTab", "scripting", "debugger", "storage", "downloads"],
+  "permissions": ["sidePanel", "activeTab", "scripting", "storage", "downloads"],
   "host_permissions": ["<all_urls>"],
   "icons": {
     "16": "icons/icon16.png",
