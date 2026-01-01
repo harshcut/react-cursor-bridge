@@ -111,8 +111,7 @@ The following files have been identified as relevant to the UI components in the
 ${sourcePaths.map((p) => `- \`${p}\``).join('\n')}`
       : ''
 
-  return `
-## User Request
+  return `## User Request
 ${userContext}
 
 ## Visual Reference

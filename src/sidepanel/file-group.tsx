@@ -27,7 +27,10 @@ export default function FileGroup({ fileGroup }: { fileGroup: FileGroup }) {
     <article className="rounded-lg border border-zinc-200 text-xs overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center justify-between px-3 py-2.5 text-left transition-colors hover:bg-zinc-50 border-b border-zinc-100"
+        className={cn(
+          'flex w-full items-center justify-between px-3 py-2.5 text-left transition-colors hover:bg-zinc-50',
+          isExpanded ? 'border-b border-zinc-100' : ''
+        )}
       >
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <FileTextIcon

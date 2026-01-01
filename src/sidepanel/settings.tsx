@@ -44,7 +44,7 @@ export default function Settings() {
           <SettingsIcon />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[340px] p-4 pt-6">
+      <DialogContent className="sm:max-w-[340px] p-4 pt-6" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="text-left">Settings</DialogTitle>
           <DialogDescription className="sr-only">Customize your preferences</DialogDescription>
