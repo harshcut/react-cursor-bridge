@@ -4,6 +4,7 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
+  InputGroupText,
   InputGroupTextarea,
 } from '@/components/ui/input-group'
 import { Button } from '@/components/ui/button'
@@ -150,6 +151,7 @@ export default function SidePanel() {
             onChange={(e) => setPrompt(e.target.value)}
           />
           <InputGroupAddon align="block-end">
+            <InputGroupText className="opacity-25">v{__APP_VERSION__}</InputGroupText>
             <InputGroupButton
               variant="default"
               className="rounded-full ml-auto"
