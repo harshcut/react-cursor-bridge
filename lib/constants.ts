@@ -16,6 +16,7 @@ export const STORAGE_KEYS = {
   CAPTURED_IMAGE: 'CAPTURED_IMAGE',
   CAPTURED_ELEMENTS: 'CAPTURED_ELEMENTS',
   GRID_DENSITY: 'GRID_DENSITY',
+  SYSTEM_PROMPT: 'SYSTEM_PROMPT',
 } as const
 
 export const GRID_DENSITY_OPTIONS: Record<
@@ -26,3 +27,12 @@ export const GRID_DENSITY_OPTIONS: Record<
   default: { minGridSpacing: 25, minGridLines: 3, maxGridLines: 12 },
   compact: { minGridSpacing: 10, minGridLines: 6, maxGridLines: 30 },
 } as const
+
+export const DEFAULT_SYSTEM_PROMPT = `## Instructions
+Please approach this task with the following steps:
+1.  **Visual Decomposition**: Analyze the screenshot to identify the key UI components and layout structure.
+2.  **Code Mapping**: Correlate the visual elements with the provided source files. Determine which code blocks correspond to the parts of the UI relevant to the user's request.
+3.  **Implementation/Resolution**:
+    *   If the request involves a **change**: Provide the specific code modifications needed, ensuring they align with the existing design system and codebase patterns.
+    *   If the request is a **question**: Provide a detailed explanation referencing both the visual and code aspects.
+**Important**: Ensure all code suggestions are syntactically correct and follow best practices for React and JavaScript/TypeScript.`

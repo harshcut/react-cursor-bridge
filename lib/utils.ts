@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { PROJECT_NAME_PREFIX } from './constants'
+import { PROJECT_NAME_PREFIX, DEFAULT_SYSTEM_PROMPT, STORAGE_KEYS } from './constants'
 import type { ElementInfo, FileGroup } from './types'
 
 export function cn(...inputs: ClassValue[]) {
@@ -99,11 +99,14 @@ export function generateCursorDeeplink(promptText: string): string {
   return `cursor://anysphere.cursor-deeplink/prompt?text=${encodeURIComponent(promptText)}`
 }
 
-export function generateCursorPrompt(
+export async function generateCursorPrompt(
   userContext: string,
   screenshotPath: string,
   sourcePaths: string[]
-): string {
+): Promise<string> {
+  const stored = await chrome.storage.local.get([STORAGE_KEYS.SYSTEM_PROMPT])
+  const systemPrompt = stored[STORAGE_KEYS.SYSTEM_PROMPT] ?? DEFAULT_SYSTEM_PROMPT
+
   const sourceFilesSection =
     sourcePaths.length > 0
       ? `## Relevant Source Files
@@ -120,16 +123,6 @@ ${screenshotPath}
 
 ${sourceFilesSection}
 
-## Instructions
-
-Please approach this task with the following steps:
-
-1.  **Visual Decomposition**: Analyze the screenshot to identify the key UI components, layout structure, and styling attributes (colors, spacing, typography).
-2.  **Code Mapping**: Correlate the visual elements with the provided source files. Determine which code blocks correspond to the parts of the UI relevant to the user's request.
-3.  **Implementation/Resolution**:
-    *   If the request involves a **change**: Provide the specific code modifications needed, ensuring they align with the existing design system and codebase patterns.
-    *   If the request is a **question**: Provide a detailed explanation referencing both the visual and code aspects.
-
-**Important**: Ensure all code suggestions are syntactically correct and follow best practices for React and JavaScript/TypeScript.
+${systemPrompt}
 `
 }

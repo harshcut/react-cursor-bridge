@@ -12,8 +12,9 @@ import {
 } from '@/components/ui/dialog'
 import { SettingsIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
 import GridDensitySetting from './grid-density'
+import SystemPromptSetting from './system-prompt'
 
-const PAGES = [GridDensitySetting]
+const PAGES = [GridDensitySetting, SystemPromptSetting]
 
 export default function Settings() {
   const [open, setOpen] = useState(false)
