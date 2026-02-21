@@ -1,5 +1,51 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { GRID_DENSITY_OPTIONS, STORAGE_KEYS } from '@/lib/constants'
 import type { GridDensityType } from '@/lib/types'
+
+export default function GridDensitySetting() {
+  const [density, setDensity] = useState<GridDensityType>('default')
+
+  useEffect(() => {
+    chrome.storage.local.get([STORAGE_KEYS.GRID_DENSITY], (result) => {
+      const stored = result[STORAGE_KEYS.GRID_DENSITY] as string | undefined
+      if (stored && stored in GRID_DENSITY_OPTIONS) {
+        setDensity(stored as GridDensityType)
+      }
+    })
+  }, [])
+
+  const handleDensityChange = (value: string) => {
+    if (value in GRID_DENSITY_OPTIONS) {
+      const newDensity = value as GridDensityType
+      setDensity(newDensity)
+      chrome.storage.local.set({ [STORAGE_KEYS.GRID_DENSITY]: newDensity })
+    }
+  }
+
+  return (
+    <div>
+      <label className="text-sm font-medium text-zinc-700">Grid Density</label>
+      <p className="text-xs text-zinc-500 text-pretty">
+        Controls how thoroughly elements are detected in the selected area.
+      </p>
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        value={density}
+        onValueChange={handleDensityChange}
+        className="w-full mt-2 mb-4"
+      >
+        {(Object.keys(GRID_DENSITY_OPTIONS) as GridDensityType[]).map((key) => (
+          <ToggleGroupItem key={key} value={key} className="flex-1 capitalize">
+            {key}
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
+      <GridPreview density={density} />
+    </div>
+  )
+}
 
 const PREVIEW_GRID_LINES: Record<GridDensityType, { x: number; y: number }> = {
   compact: { x: 10, y: 6 },
@@ -7,7 +53,7 @@ const PREVIEW_GRID_LINES: Record<GridDensityType, { x: number; y: number }> = {
   loose: { x: 5, y: 4 },
 }
 
-export default function GridPreview({ density }: { density: GridDensityType }) {
+function GridPreview({ density }: { density: GridDensityType }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [containerWidth, setContainerWidth] = useState(0)
 
@@ -69,10 +115,7 @@ export default function GridPreview({ density }: { density: GridDensityType }) {
   }, [gridLines.x, gridLines.y, contentWidth])
 
   return (
-    <div
-      ref={containerRef}
-      className="mt-4 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-3.5"
-    >
+    <div ref={containerRef} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-3.5">
       {containerWidth > 0 && (
         <svg
           className="w-full h-full"
