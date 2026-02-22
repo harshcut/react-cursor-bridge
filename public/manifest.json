@@ -3,7 +3,7 @@
   "manifest_version": 3,
   "name": "React Cursor Bridge (Beta)",
   "description": "Capture screenshots, detect React elements, and send visual context with source code references directly to your editor.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "background": {
     "service_worker": "background.js",
     "type": "module"

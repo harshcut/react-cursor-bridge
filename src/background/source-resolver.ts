@@ -21,18 +21,13 @@ type ElementWithFiber = Element & {
 
 function findReactSourceInfoScript(selector: string): ReactSourceInfo | null {
   /**
-   * react fiber work tags that identify the type of fiber node.
-   * we use these to filter for component fibers that can have source info.
+   * react fiber work tags that identify the type of fiber node
+   * we need the tag to identify fibers and walk past them in the source resolution
    * @see https://github.com/facebook/react/blob/v18.3.0/packages/react-reconciler/src/ReactWorkTags.js
    */
-  const ReactTypeOfWork = {
-    FunctionComponent: 0,
-    ClassComponent: 1,
-    IndeterminateComponent: 2,
+  const ReactWorkTags = {
+    ContextConsumer: 9,
     ContextProvider: 10,
-    ForwardRef: 11,
-    MemoComponent: 14,
-    SimpleMemoComponent: 15,
   } as const
 
   // cache for fiber property keys to avoid repeated object.keys() lookups
@@ -98,8 +93,12 @@ function findReactSourceInfoScript(selector: string): ReactSourceInfo | null {
       elementType?.name ||
       // components with explicit displayName (common in hocs)
       elementType?.displayName ||
-      // forwardref wraps the actual component in a type property
+      // forwardref stores the wrapped function under render
+      elementType?.render?.name ||
+      // memo/other wrappers store the inner component under type
       elementType?.type?.name ||
+      // memo wraps forwardref, so the function is two levels deep
+      elementType?.type?.render?.name ||
       // lazy components store the resolved component in _payload._result
       elementType?._payload?._result?.name ||
       'Anonymous'
@@ -125,18 +124,6 @@ function findReactSourceInfoScript(selector: string): ReactSourceInfo | null {
     return null
   }
 
-  function isComponentWithSource(tag: number): boolean {
-    // fiber tags that represent user-defined components (can have source info)
-    const componentTags: number[] = [
-      ReactTypeOfWork.FunctionComponent,
-      ReactTypeOfWork.ClassComponent,
-      ReactTypeOfWork.ForwardRef,
-      ReactTypeOfWork.MemoComponent,
-      ReactTypeOfWork.SimpleMemoComponent,
-    ]
-    return componentTags.includes(tag)
-  }
-
   try {
     const element = document.querySelector(selector)
     if (!element) return null
@@ -146,20 +133,30 @@ function findReactSourceInfoScript(selector: string): ReactSourceInfo | null {
 
     let current: Fiber | null = fiber
 
-    // walk up the fiber tree until we find a component with debug source
+    // walk up the fiber tree until we find a fiber with debug source
     while (current) {
-      if (isComponentWithSource(current.tag)) {
-        const source = getSourceFromFiber(current)
-        if (source) {
-          return {
-            ...source,
-            componentName: getDisplayNameForFiber(current),
-          }
+      const source = getSourceFromFiber(current)
+
+      if (source) {
+        let ownerFiber: Fiber | null = current
+        while (
+          ownerFiber &&
+          (typeof ownerFiber.elementType === 'string' || // native dom tags
+            typeof ownerFiber.elementType === 'symbol' || // react internals
+            ownerFiber.tag === ReactWorkTags.ContextProvider ||
+            ownerFiber.tag === ReactWorkTags.ContextConsumer)
+        ) {
+          ownerFiber = ownerFiber._debugOwner ?? ownerFiber.return
+        }
+
+        return {
+          ...source,
+          componentName: getDisplayNameForFiber(ownerFiber ?? current),
         }
       }
 
       // debug owner is the component that wrote this jsx (leads to source faster)
-      // return is structural tree parent
+      // return is the structural tree parent
       current = current._debugOwner ?? current.return
     }
 
